@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Performance Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1 class="title">🎓 Student Performance Predictor</h1>
+            <p class="subtitle">A simple and clear interface for predicting student GPA from study time, absences, and tutoring status.</p>
+        </div>
+
+        <form id="predictForm" action="/predict_form" method="post" class="section-card">
+            <div class="section-title">Input</div>
+            <p class="section-subtitle">Enter the student data below and predict the performance outcome.</p>
+            <div class="input-grid">
+                <input type="number" step="any" name="StudyTimeWeekly" value="{{ study if study else '' }}" placeholder="Study Time Weekly" required>
+                <input type="number" step="any" name="Absences" value="{{ absences if absences else '' }}" placeholder="Absences" required>
+                <input type="number" step="any" name="Tutoring" value="{{ tutoring if tutoring else '' }}" placeholder="Tutoring (0 or 1)" required>
+            </div>
+            <div class="button-group">
+                <button type="submit">Predict Performance</button>
+            </div>
+        </form>
+
+        {% if prediction_text %}
+        <section class="section-card result-section">
+            <div class="section-title">Prediction Result</div>
+            <div class="result-box">
+                <p>{{ prediction_text }}</p>
+                {% if percentage_text %}
+                <p>{{ percentage_text }}</p>
+                {% endif %}
+
+                {% if category == 'Excellent' %}
+                    <span class="badge excellent">Excellent</span>
+                {% elif category == 'Good' %}
+                    <span class="badge good">Good</span>
+                {% elif category == 'Average' %}
+                    <span class="badge average">Average</span>
+                {% else %}
+                    <span class="badge poor">Needs Improvement</span>
+                {% endif %}
+
+                <p class="review">This prediction is based on study time, attendance, and tutoring support. Use these insights to guide your next steps.</p>
+            </div>
+        </section>
+
+        {% if improved_gpa %}
+        <section class="section-card whatif-section">
+            <div class="section-title">What-If Analysis</div>
+            <p class="section-subtitle">See where small adjustments can make the biggest difference.</p>
+            <div class="whatif-row">
+                <p class="whatif-headline">{{ whatif_info.headline }}</p>
+                <p class="whatif-description">{{ whatif_info.description }}</p>
+                <div class="suggestion-list">
+                    <ul>
+                        {% for item in suggestions %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="whatif-summary">
+                    <p><strong>Projected GPA:</strong> {{ gpa_value }} → {{ improved_gpa }}</p>
+                    <p><strong>Projected percentage:</strong> {{ percentage_value }}% → {{ improved_percentage }}%</p>
+                    <p class="diff">{{ whatif_info.action }}</p>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="section-card impact-section">
+            <div class="section-title">Feature Impact</div>
+            <p class="section-subtitle">This explains how each input influences the performance forecast.</p>
+            <div class="impact-grid">
+                {% for feature in feature_impact %}
+                <div class="impact-card {{ 'positive' if feature.impact == 'Positive' else 'negative' }}">
+                    <h4>{{ feature.title }}</h4>
+                    <p class="impact-label">{{ feature.icon }} {{ feature.impact }}</p>
+                    <p>{{ feature.detail }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <div class="footer">Insights are based on training data and may vary.</div>
+    </div>
+</body>
+</html>
